@@ -14,11 +14,18 @@ node('master') {
    // ** NOTE: This 'mvn' maven tool must be configured
    // **       in the global configuration.
    def mvnHome = tool 'maven339'
+   def server = Artifactory.server('my-server-id')
+   def rtMaven = Artifactory.newMavenBuild()
+   rtMaven.resolver server: server, releaseRepo: 'remote-repos', snapshotRepo: 'libs-snapshot'
+   rtMaven.deployer server: server, releaseRepo: 'libs-release-local', snapshotRepo: 'libs-snapshot-local'
+   rtMaven.deployer.deployArtifacts = false
+   rtMaven.tool = 'maven339'
 
    stage 'build'
    // set the version of the build artifact to the Jenkins BUILD_NUMBER so you can
    // map artifacts to Jenkins builds
    withEnv(["MAVEN_HOME=${mvnHome}"]) {
+      def buildInfo = rtMaven.run pom: 'maven-example/pom.xml', goals: 'clean install'
      sh "${mvnHome}/bin/mvn versions:set -DnewVersion=${env.BUILD_NUMBER}"
      sh "${mvnHome}/bin/mvn package"
    }
