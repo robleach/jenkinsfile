@@ -14,7 +14,7 @@ node('master') {
    // ** NOTE: This 'mvn' maven tool must be configured
    // **       in the global configuration.
    def mvnHome = tool 'maven339'
-   def server = Artifactory.server('my-server-id')
+   def server = Artifactory.server('DCSR Artifactory')
    def rtMaven = Artifactory.newMavenBuild()
    rtMaven.resolver server: server, releaseRepo: 'remote-repos', snapshotRepo: 'libs-snapshot'
    rtMaven.deployer server: server, releaseRepo: 'libs-release-local', snapshotRepo: 'libs-snapshot-local'
