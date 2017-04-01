@@ -25,16 +25,21 @@ node('master') {
    // set the version of the build artifact to the Jenkins BUILD_NUMBER so you can
    // map artifacts to Jenkins builds
    withEnv(["MAVEN_HOME=${mvnHome}"]) {
-      def buildInfo = rtMaven.run pom: 'maven-example/pom.xml', goals: 'clean install'
-     sh "${mvnHome}/bin/mvn versions:set -DnewVersion=${env.BUILD_NUMBER}"
-     sh "${mvnHome}/bin/mvn package"
+      //sh "${mvnHome}/bin/mvn versions:set -DnewVersion=${env.BUILD_NUMBER}"
+      //sh "${mvnHome}/bin/mvn package"
+      rtMaven.run versions:set -DnewVersion=${env.BUILD_NUMBER}
+      def buildInfo = rtMaven.run pom: 'pom.xml', goals: 'package'
    }
 
    stage 'test'
    parallel 'test': {
-     sh "${mvnHome}/bin/mvn test; sleep 2;"
+      buildInfo = rtMaven.run pom: 'pom.xml', goals: 'test';
+      sleep 2;
+      //sh "${mvnHome}/bin/mvn test; sleep 2;"
    }, 'verify': {
-     sh "${mvnHome}/bin/mvn verify; sleep 3"
+      buildInfo = rtMaven.run pom: 'pom.xml', goals: 'verify';
+      sleep 3;
+      //sh "${mvnHome}/bin/mvn verify; sleep 3"
    }
 
    stage 'archive'
