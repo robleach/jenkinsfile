@@ -27,7 +27,7 @@ node('master') {
    withEnv(["MAVEN_HOME=${mvnHome}"]) {
       //sh "${mvnHome}/bin/mvn versions:set -DnewVersion=${env.BUILD_NUMBER}"
       //sh "${mvnHome}/bin/mvn package"
-      rtMaven.run versions:set -DnewVersion=${env.BUILD_NUMBER}
+      //rtMaven.run versions:set -DnewVersion=${env.BUILD_NUMBER}
       def buildInfo = rtMaven.run pom: 'pom.xml', goals: 'package'
    }
 
