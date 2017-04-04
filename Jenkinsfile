@@ -57,4 +57,6 @@ node('master') {
    input 'Proceed?'
    sh 'echo "write your deploy code here"; sleep 6;'
    archive 'target/*.jar'
+   echo rtc.repo
+   rtc.printUri
 }
