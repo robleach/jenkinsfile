@@ -61,7 +61,10 @@ node('master') {
    rtc.port = '57000'
    echo rtc.repo
    
-   acme.name = 'Alice'
-   echo acme.name
-   acme.caution 'The queen is angry!'
+   sayHello 'Joe'
+   sayHello()
 }
+
+acme.name = 'Alice'
+echo acme.name
+acme.caution 'The queen is angry!'
