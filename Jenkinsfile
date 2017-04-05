@@ -67,5 +67,6 @@ node('master') {
 
 acme.name = 'Alice'
 echo acme.name
-def myoutput = acme.caution 'The queen is angry!'
+acme.caution 'The queen is angry!'
+def myoutput = acme.caution('The queen is angry!')
 echo myoutput
