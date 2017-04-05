@@ -58,5 +58,6 @@ node('master') {
    sh 'echo "write your deploy code here"; sleep 6;'
    archive 'target/*.jar'
    echo rtc.repo
-   rtc.printUri
+   rtc.port = '57000'
+   echo rtc.repo
 }
