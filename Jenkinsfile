@@ -4,6 +4,12 @@
 // see https://documentation.cloudbees.com/docs/cookbook/_pipeline_dsl_keywords.html for dsl reference
 // This Jenkinsfile should simulate a minimal Jenkins pipeline and can serve as a starting point.
 // NOTE: sleep commands are solelely inserted for the purpose of simulating long running tasks when you run the pipeline
+
+def mvnHome = tool 'maven339'
+def server = Artifactory.server('DCSR Artifactory')
+def rtMaven = Artifactory.newMavenBuild()
+def buildInfo
+
 node('master') {
    // Mark the code checkout 'stage'....
    stage('checkout') {
@@ -15,9 +21,6 @@ node('master') {
    // Get the maven tool.
    // ** NOTE: This 'mvn' maven tool must be configured
    // **       in the global configuration.
-   def mvnHome = tool 'maven339'
-   def server = Artifactory.server('DCSR Artifactory')
-   def rtMaven = Artifactory.newMavenBuild()
    rtMaven.resolver server: server, releaseRepo: 'remote-repos', snapshotRepo: 'libs-snapshot'
    rtMaven.deployer server: server, releaseRepo: 'libs-release-local', snapshotRepo: 'libs-snapshot-local'
    rtMaven.deployer.deployArtifacts = false
@@ -31,7 +34,7 @@ node('master') {
       //sh "${mvnHome}/bin/mvn versions:set -DnewVersion=${env.BUILD_NUMBER}"
       //sh "${mvnHome}/bin/mvn package"
       //rtMaven.run versions:set -DnewVersion=${env.BUILD_NUMBER}
-      def buildInfo = rtMaven.run pom: 'pom.xml', goals: 'package'
+      buildInfo = rtMaven.run pom: 'pom.xml', goals: 'package'
    }}
 
    stage('test') {
@@ -49,7 +52,6 @@ node('master') {
      archive 'target/*.jar'
    }
 }
-
 
 node('master') {
    stage('deploy Canary') {
