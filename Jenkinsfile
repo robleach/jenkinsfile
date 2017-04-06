@@ -4,15 +4,9 @@
 // see https://documentation.cloudbees.com/docs/cookbook/_pipeline_dsl_keywords.html for dsl reference
 // This Jenkinsfile should simulate a minimal Jenkins pipeline and can serve as a starting point.
 // NOTE: sleep commands are solelely inserted for the purpose of simulating long running tasks when you run the pipeline
-
-def mvnHome = tool 'maven339'
-def server = Artifactory.server('DCSR Artifactory')
-def rtMaven = Artifactory.newMavenBuild()
-def buildInfo
-
 node('master') {
    // Mark the code checkout 'stage'....
-   stage('checkout') {
+   stage 'checkout'
 
    // Get some code from a GitHub repository
    git url: 'https://github.com/robleach/jenkinsfile.git'
@@ -21,23 +15,25 @@ node('master') {
    // Get the maven tool.
    // ** NOTE: This 'mvn' maven tool must be configured
    // **       in the global configuration.
+   def mvnHome = tool 'maven339'
+   def server = Artifactory.server('DCSR Artifactory')
+   def rtMaven = Artifactory.newMavenBuild()
    rtMaven.resolver server: server, releaseRepo: 'remote-repos', snapshotRepo: 'libs-snapshot'
    rtMaven.deployer server: server, releaseRepo: 'libs-release-local', snapshotRepo: 'libs-snapshot-local'
    rtMaven.deployer.deployArtifacts = false
    rtMaven.tool = 'maven339'
-   }
 
-   stage('build') {
+   stage 'build'
    // set the version of the build artifact to the Jenkins BUILD_NUMBER so you can
    // map artifacts to Jenkins builds
    withEnv(["MAVEN_HOME=${mvnHome}"]) {
       //sh "${mvnHome}/bin/mvn versions:set -DnewVersion=${env.BUILD_NUMBER}"
       //sh "${mvnHome}/bin/mvn package"
       //rtMaven.run versions:set -DnewVersion=${env.BUILD_NUMBER}
-      buildInfo = rtMaven.run pom: 'pom.xml', goals: 'package'
-   }}
+      def buildInfo = rtMaven.run pom: 'pom.xml', goals: 'package'
+   }
 
-   stage('test') {
+   stage 'test'
    parallel 'test': {
       buildInfo = rtMaven.run pom: 'pom.xml', goals: 'test';
       sleep 2;
@@ -46,37 +42,36 @@ node('master') {
       buildInfo = rtMaven.run pom: 'pom.xml', goals: 'verify';
       sleep 3;
       //sh "${mvnHome}/bin/mvn verify; sleep 3"
-   }}
-
-   stage('archive') {
-     archive 'target/*.jar'
    }
+
+   stage 'archive'
+   archive 'target/*.jar'
 }
 
+
 node('master') {
-   stage('deploy Canary') {
+   stage 'deploy Canary'
    sh 'echo "write your deploy code here"; sleep 5;'
 
    stage 'deploy Production'
-   //input 'Proceed?'
+   input 'Proceed?'
    sh 'echo "write your deploy code here"; sleep 6;'
    archive 'target/*.jar'
-   }
 }
 
 node('master') {
-   stage('testing') {
-   echo rtc.repo
-   rtc.port = '57000'
-   echo rtc.repo
+  stage('post scope') {
+    echo rtc.repo
+    rtc.port = '57000'
+    echo rtc.repo
 
-   acme.name = 'Alice'
-   echo acme.name
-   acme.caution 'The queen is angry!'
-   def myoutput = acme.caution('The queen is angry!')
-   echo myoutput
-
-   sayHello 'Joe'
-   sayHello()
-   }
+    acme.name = 'Alice'
+    echo acme.name
+    acme.caution 'The queen is angry!'
+    def myoutput = acme.caution('The queen is angry!')
+    echo myoutput
+    
+    sayHello 'Joe'
+    sayHello()
+  }
 }
