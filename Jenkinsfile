@@ -54,7 +54,7 @@ node('master') {
    sh 'echo "write your deploy code here"; sleep 5;'
 
    stage 'deploy Production'
-   input 'Proceed?'
+   //input 'Proceed?'
    sh 'echo "write your deploy code here"; sleep 6;'
    archive 'target/*.jar'
 }
